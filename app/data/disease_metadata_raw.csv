@@ -1,0 +1,6 @@
+plant,diseasename,label,mintemp,maxtemp,minhumidity,max_humidity,notes
+tomato,Tomato Late Blight,Tomato__Lateblight,10,25,70,100,"Cool and humid conditions"
+tomato,Tomato Leaf Mold,Tomato__LeafMold,18,24,85,100,"High humidity, poor air circulation"
+tomato,Tomato Septoria Leaf Spot,Tomato__Septorialeaf_spot,20,25,75,100,"Warm and wet conditions"
+potato,Potato Early Blight,Potato__Earlyblight,20,30,65,95,"Warm, moderate to high humidity"
+potato,Potato Late Blight,Potato__Lateblight,10,20,80,100,"Cool and wet weather"
