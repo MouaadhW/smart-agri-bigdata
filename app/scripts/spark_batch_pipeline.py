@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, todate
+from pyspark.sql.functions import col, avg, to_date, to_timestamp
 from pyspark.sql.types import (
     StructType, StructField, StringType, DoubleType,
     BooleanType, TimestampType, StructType as ST
@@ -43,25 +43,25 @@ def main():
 
     schema = getschema()
 
-    rawpath = "hdfs://namenode:9000/data/agri/sensors////sensorbatch.json"
+    rawpath = "hdfs://namenode:9000/data/agri/sensors/*.json"
     dfraw = spark.read.schema(schema).json(rawpath)
 
-    df = dfraw.withColumn("timestampts", col("timestamp").cast(TimestampType()))
-    df = df.withColumn("date", todate(col("timestampts")))
+    df = dfraw.withColumn("timestamp_ts", to_timestamp(col("timestamp")))
+    df = df.withColumn("date", to_date(col("timestamp_ts")))
 
-    df = df.dropna(subset=["fieldid", "timestampts", "soil.moisture", "atmosphere.temperature"])
+    df = df.dropna(subset=["fieldid", "timestamp_ts", "soil.moisture", "atmosphere.temperature"])
     df = df.filter((col("soil.moisture") >= 0) & (col("soil.moisture") <= 1))
     df = df.filter((col("soil.ph") >= 3.5) & (col("soil.ph") <= 9.5))
 
     diseasedf = spark.read.option("header", True).csv(
-        "hdfs://namenode:9000/data/agri/disease/diseasemetadataclean.csv"
+        "hdfs://namenode:9000/data/agri/disease/disease_metadata_clean.csv"
     )
 
     aggdaily = df.groupBy("date", "fieldid", "croptype").agg(
         avg(col("soil.moisture")).alias("avgsoilmoisture"),
         avg(col("soil.temperature")).alias("avgsoiltemp"),
         avg(col("atmosphere.temperature")).alias("avgairtemp"),
-        avg(col("atmosphere.humidity")).alias("avgairhumidity")
+        avg(col("atmosphere.humidity")).alias("avgairhumidity"),
     )
 
     aggdaily.write.mode("overwrite").parquet(
@@ -70,10 +70,10 @@ def main():
 
     diseasestats = diseasedf.groupBy("plant").count().withColumnRenamed("count", "ndiseases")
     diseasestats.write.mode("overwrite").parquet(
-        "hdfs://namenode:9000/data/agri/output/disease_stats"
+        "hdfs://namenode:9000/data/agri/output/diseasestats"
     )
 
     spark.stop()
 
-if name == "main":
+if __name__ == "__main__":
     main()

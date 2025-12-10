@@ -2,52 +2,64 @@ import pandas as pd
 from pymongo import MongoClient
 import os
 
+# Environment variables come from docker-compose / .env
 MONGOHOST = os.getenv("MONGOHOST", "mongodb")
 MONGOPORT = int(os.getenv("MONGOPORT", "27017"))
 MONGOUSER = os.getenv("MONGOINITDBROOTUSERNAME", "root")
 MONGOPWD = os.getenv("MONGOINITDBROOTPASSWORD", "example")
 MONGODB = os.getenv("MONGODB", "agridb")
 
+
 def main():
-    rawpath = "data/diseasemetadataraw.csv"
-    cleanpath = "data/diseasemetadataclean.csv"
+    rawpath = "data/disease_metadata_raw.csv"
+    cleanpath = "data/disease_metadata_clean.csv"
 
-    df = pd.readcsv(rawpath)
-    df["plant"] = df["plant"].str.strip().str.lower()
-    df["diseasename"] = df["diseasename"].str.strip()
+    # 1. Read CSV
+    df = pd.read_csv(rawpath)
 
-    df.tocsv(cleanpath, index=False)
+    # 2. Clean basic fields
+    df["plant"] = df["plant"].astype(str).str.strip().str.lower()
+    df["diseasename"] = df["diseasename"].astype(str).str.strip()
 
+    # 3. Save cleaned version for HDFS ingestion
+    df.to_csv(cleanpath, index=False)
+
+    # 4. Insert into MongoDB
     client = MongoClient(
         host=MONGOHOST,
         port=MONGOPORT,
         username=MONGOUSER,
-        password=MONGOPWD
+        password=MONGOPWD,
     )
-
     db = client[MONGODB]
     coll = db["diseasemetadata"]
-    coll.deletemany({})
+
+    # Clear existing for demo
+    coll.delete_many({})
 
     docs = []
-    for , row in df.iterrows():
-        docs.append({
-            "plant": row["plant"],
-            "diseasename": row["diseasename"],
-            "label": row["label"],
-            "severityscale": "medium",
-            "favorableconditions": {
-                "mintemp": float(row["mintemp"]),
-                "maxtemp": float(row["maxtemp"]),
-                "minhumidity": float(row["minhumidity"]),
-                "maxhumidity": float(row["maxhumidity"]),
-                "notes": row.get("notes", "")
+    for _, row in df.iterrows():
+        docs.append(
+            {
+                "plant": row.get("plant"),
+                "diseasename": row.get("diseasename"),
+                "label": row.get("label"),
+                "severityscale": "medium",
+                "favorableconditions": {
+                    "mintemp": float(row.get("mintemp", 0) or 0),
+                    "maxtemp": float(row.get("maxtemp", 0) or 0),
+                    "minhumidity": float(row.get("minhumidity", 0) or 0),
+                    "maxhumidity": float(row.get("maxhumidity", 0) or 0),
+                    "notes": str(row.get("notes", "")),
+                },
             }
-        })
+        )
 
     if docs:
-        coll.insertmany(docs)
-    print("Disease metadata prepared and stored in MongoDB.")
+        coll.insert_many(docs)
 
-if name == "main":
+    print("Disease metadata cleaned and loaded into MongoDB.")
+
+
+if __name__ == "__main__":
     main()

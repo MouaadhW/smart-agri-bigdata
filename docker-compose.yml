@@ -3,7 +3,7 @@ version: "3.9"
 services:
   hadoop-namenode:
     build: ./hadoop
-    containername: hadoop-namenode
+    container_name: hadoop-namenode
     hostname: namenode
     environment:
       - CLUSTERNAME=agricluster
@@ -18,7 +18,7 @@ services:
 
   hadoop-datanode:
     build: ./hadoop
-    containername: hadoop-datanode
+    container_name: hadoop-datanode
     hostname: datanode
     environment:
       - CLUSTERNAME=agricluster
@@ -31,9 +31,9 @@ services:
 
   spark:
     build: ./spark
-    containername: spark
+    container_name: spark
     hostname: spark
-    dependson:
+    depends_on:
       - hadoop-namenode
       - hadoop-datanode
     environment:
@@ -45,31 +45,31 @@ services:
 
   mongodb:
     build: ./mongodb
-    containername: mongodb
+    container_name: mongodb
     hostname: mongodb
     environment:
-      - MONGOINITDBROOTUSERNAME=${MONGOINITDBROOTUSERNAME}
-      - MONGOINITDBROOTPASSWORD=${MONGOINITDBROOTPASSWORD}
-      - MONGOINITDBDATABASE=${MONGODB}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGOINITDBROOTUSERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGOINITDBROOTPASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGODB}
     ports:
       - "27017:27017"
     volumes:
-      - mongodata:/data/db
+      - mongo_data:/data/db
     networks:
       - agri-net
 
   app:
     build: ./app
-    containername: app
+    container_name: app
     hostname: app
-    dependson:
+    depends_on:
       - hadoop-namenode
       - hadoop-datanode
       - spark
       - mongodb
     volumes:
       - ./app:/opt/app
-    workingdir: /opt/app
+    working_dir: /opt/app
     networks:
       - agri-net
     command: tail -f /dev/null

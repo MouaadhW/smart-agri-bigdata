@@ -24,7 +24,7 @@ def generatereading(basetime, field):
 
     return {
         "fieldid": field["fieldid"],
-        "sensorid": f"{field['fieldid']}sensor",
+        "sensorid": f"{field['fieldid']}_sensor",
         "timestamp": basetime.isoformat(),
         "sensortype": "combined",
         "croptype": field["croptype"],
@@ -54,8 +54,8 @@ def main():
     endtime = starttime + timedelta(days=1)
     step = timedelta(minutes=15)
 
-    outdir = "data/gatewayoutput"
-    os.makedirs(outdir, existok=True)
+    outdir = "data/gateway_output"
+    os.makedirs(outdir, exist_ok=True)
 
     current = starttime
     while current < endtime:
@@ -69,5 +69,6 @@ def main():
 
     print("Sensor simulation finished. Files in data/gateway_output/")
 
-if name == "main":
+
+if __name__ == "__main__":
     main()
