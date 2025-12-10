@@ -22,7 +22,7 @@ services:
     hostname: datanode
     environment:
       - CLUSTERNAME=agricluster
-    dependson:
+    depends_on:
       - hadoop-namenode
     volumes:
       - hadoopdatanode:/hadoop/dfs/data
@@ -30,14 +30,15 @@ services:
       - agri-net
 
   spark:
-    build: ./spark
+    image: bitnami/spark:3
     container_name: spark
     hostname: spark
     depends_on:
       - hadoop-namenode
       - hadoop-datanode
     environment:
-      - HADOOPNAMENODE=namenode
+      - HADOOP_NAMENODE_PORT=9000
+      - HADOOP_NAMENODE_HOST=namenode
     volumes:
       - ./app:/opt/app
     networks:
@@ -69,6 +70,12 @@ services:
       - mongodb
     volumes:
       - ./app:/opt/app
+    environment:
+      - MONGOHOST=mongodb
+      - MONGOPORT=27017
+      - MONGOINITDBROOTUSERNAME=${MONGOINITDBROOTUSERNAME}
+      - MONGOINITDBROOTPASSWORD=${MONGOINITDBROOTPASSWORD}
+      - MONGODB=${MONGODB}
     working_dir: /opt/app
     networks:
       - agri-net
