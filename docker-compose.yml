@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   hadoop-namenode:
     build: ./hadoop
@@ -7,6 +5,7 @@ services:
     hostname: namenode
     environment:
       - CLUSTERNAME=agricluster
+      - CLUSTER_NAME=agricluster
     ports:
       - "9870:9870"      # HDFS web UI
       - "9000:9000"      # HDFS namenode RPC
@@ -22,6 +21,7 @@ services:
     hostname: datanode
     environment:
       - CLUSTERNAME=agricluster
+      - CLUSTER_NAME=agricluster
     depends_on:
       - hadoop-namenode
     volumes:
@@ -30,7 +30,7 @@ services:
       - agri-net
 
   spark:
-    image: bitnami/spark:3
+    image: apache/spark:3.4.1
     container_name: spark
     hostname: spark
     depends_on:
@@ -43,6 +43,7 @@ services:
       - ./app:/opt/app
     networks:
       - agri-net
+    command: tail -f /dev/null
 
   mongodb:
     build: ./mongodb

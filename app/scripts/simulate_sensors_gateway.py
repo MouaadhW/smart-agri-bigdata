@@ -54,7 +54,10 @@ def main():
     endtime = starttime + timedelta(days=1)
     step = timedelta(minutes=15)
 
-    outdir = "data/gateway_output"
+    # Get the app directory (parent of scripts dir)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    app_dir = os.path.dirname(script_dir)
+    outdir = os.path.join(app_dir, "data", "gateway_output")
     os.makedirs(outdir, exist_ok=True)
 
     current = starttime
