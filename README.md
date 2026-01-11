@@ -1,26 +1,55 @@
-# smart-agri-bigdata
+# Smart Agriculture Big Data Platform
 
-End-to-end big data demo for smart agriculture with Streamlit UI, Spark batch jobs, Hadoop/HDFS, and MongoDB.
+A complete end-to-end big data system for intelligent agricultural monitoring and analysis. This project combines **IoT sensor data**, **batch processing**, **distributed storage**, and **real-time analytics** to support precision farming decisions.
+
+## 📋 Project Overview
+
+Smart Agri BigData is a full-stack demonstration of modern big data technologies applied to agriculture:
+
+- **Data Generation**: Simulated IoT sensors generating real-time field data (soil, atmosphere, crop health)
+- **Data Ingestion**: Apache Hadoop/HDFS for distributed storage
+- **Batch Processing**: Apache Spark pipelines for aggregating and analyzing sensor data
+- **Analytics Storage**: MongoDB for storing processed analytics and historical data
+- **Interactive Dashboard**: Streamlit web interface for visualization and data exploration
+
+### Key Features
+- 🌾 **Multi-field monitoring**: Soil moisture, temperature, pH; atmospheric conditions; disease risk scoring
+- 📊 **Batch analytics**: Daily aggregations of sensor metrics by field and crop type
+- 🏥 **Disease tracking**: Plant disease metadata with prevalence analysis
+- 📈 **Real-time visualization**: Live plots from MongoDB analytics collections
+- 🐳 **Docker containerization**: Isolated services for scalable deployment
+- 🔄 **Modular architecture**: Each component (Hadoop, Spark, Mongo, UI) can be independently scaled
+
+---
 
 ## Prerequisites
-- Python 3.10+ (tested with 3.12)
-- Docker + Docker Compose
 
-## Quick Start (Dashboard Only)
+- **Python 3.10+** (tested with 3.12)
+- **Docker + Docker Compose** (for full-stack deployment)
+- **Git** (optional, for cloning the repository)
 
-No Docker needed—just the Streamlit UI with sample data preview and local script execution.
+---
+
+## 🚀 Quick Start (Streamlit Dashboard Only)
+
+**Time**: ~5 minutes | **Docker needed**: ❌ No
+
+Start the interactive dashboard with sample data preview and local data generation scripts—no container orchestration required.
 
 ```bash
 pip install -r requirements.txt
 python -m streamlit run app/interface.py
 ```
 
-Open http://localhost:8501 to explore:
-- **Home**: Project overview (this README).
-- **Runbook**: Step-by-step commands for full-stack deployment.
-- **Data**: Preview and download CSVs from `app/data/` and `app/results/`.
-- **Analytics**: Connect to MongoDB `analyticsdaily` collection (live plots if Mongo is running).
-- **Architecture & Docs**: System overview and troubleshooting.
+Open **http://localhost:8501** in your browser to explore:
+
+| Tab | Functionality |
+|-----|---------------|
+| **Home** | Project overview and architecture summary |
+| **Runbook** | Copy-pasteable commands for full-stack setup (reference) |
+| **Data** | Preview and download CSVs; run data generators locally |
+| **Analytics** | Live MongoDB analytics plots (if Mongo is running) |
+| **Architecture & Docs** | System architecture and troubleshooting guide |
 
 ## Full Stack Setup (Hadoop + Spark + Mongo)
 
@@ -94,62 +123,7 @@ python -m streamlit run app/interface.py
 - **Analytics**: Live plots from MongoDB if connected (soil moisture, disease counts, drought risk).
 - **Architecture & Docs**: System overview and quick troubleshooting.
 
-## Troubleshooting
 
-**Streamlit doesn't start:**
-```bash
-python -m streamlit run app/interface.py --logger.level=debug
-```
-
-**MongoDB not reachable (Analytics tab shows demo):**
-- Check env vars: `MONGOHOST`, `MONGOPORT`, `MONGOINITDBROOTUSERNAME`, `MONGOINITDBROOTPASSWORD`.
-- Ensure `.env` is in repo root.
-- Verify MongoDB container: `docker ps | grep mongodb`.
-
-**Hadoop/Spark containers fail to start:**
-- Docker image pull failures: Try `docker compose pull` then `docker compose up -d`.
-- Namenode logs: `docker logs hadoop-namenode --tail 50`.
-- Datanode logs: `docker logs hadoop-datanode --tail 50`.
-
-**HDFS put command fails ("no datanode running"):**
-- Datanode may still be initializing. Wait 10-15 seconds and retry.
-- Check datanode logs: `docker logs hadoop-datanode --tail 50`.
-
-**Python script import errors:**
-- Install deps: `pip install -r requirements.txt` (host) and `pip install -r app/requirements.txt` (inside Docker).
-
-## Project Structure
-
-```
-.
-├── docker-compose.yml          # Service definitions (Hadoop, Spark, Mongo, App)
-├── .env                        # Mongo credentials (create this)
-├── requirements.txt            # Python deps (host)
-├── app/
-│   ├── interface.py            # Streamlit UI (runbook, data, analytics tabs)
-│   ├── requirements.txt        # Python deps (Docker app container)
-│   ├── Dockerfile              # App container definition
-│   ├── data/
-│   │   ├── disease_metadata_raw.csv          # Input disease data
-│   │   ├── disease_metadata_clean.csv        # Cleaned output
-│   │   ├── gateway_output/                   # Generated sensor JSONs
-│   │   └── yoursample.csv                    # Example data
-│   ├── results/                              # Spark output CSVs (aggdaily_sample.csv, etc.)
-│   ├── images/                               # Add sys_arch.png here
-│   └── scripts/
-│       ├── simulate_sensors_gateway.py       # Generate 96 sensor readings
-│       ├── prepare_disease_metadata.py       # Clean CSV & load Mongo
-│       ├── spark_batch_pipeline.py           # Spark ETL
-│       └── load_analytics_to_mongo.py        # Load Spark outputs to Mongo
-├── hadoop/
-│   ├── Dockerfile
-│   ├── core-site.xml
-│   └── hdfs-site.xml
-├── mongodb/
-│   ├── Dockerfile
-│   └── mongo-init.js
-└── spark/
-    └── Dockerfile
 ```
 
 ## Key Data Flow
