@@ -4,3 +4,7 @@ pyspark
 streamlit
 matplotlib
 plotly
+dash
+dash-bootstrap-components
+requests
+numpy
